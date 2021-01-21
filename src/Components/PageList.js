@@ -20,7 +20,8 @@ const useStyles = makeStyles((theme) => ({
         marginTop: 20,
         width: '100%',
         margin: 'auto',
-        marginBottom: 35
+        marginBottom: 35,
+        boxShadow: theme.shadows[5],
     },
     root: {
         '&:nth-of-type(odd)': {
@@ -36,8 +37,20 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
     },
-    search:{
-        width: 274, marginTop: '40px', marginRight: 745, borderRadius: 4
+    labelsearch: {
+        marginLeft: -338
+    },
+    labeltitle: {
+        marginLeft: -270
+    },
+    search: {
+        width: 274, marginTop: '40px', marginRight: 288, borderRadius: 4
+    },
+    titledropdown: {
+        width: 230, marginTop: '0px', marginRight: 14, borderRadius: 4
+    },
+    Created_atdropdown: {
+        width: 230, marginTop: '0px', marginRight: -340, borderRadius: 4
     }
 }));
 
@@ -47,6 +60,10 @@ export default function PageList() {
 
     useEffect(() => {
         loadData();
+        const interval = setInterval(() => {
+            loadData();
+        }, 10000)
+        return () => clearInterval(interval)
     }, []);
 
     const loadData = async () => {
@@ -76,6 +93,7 @@ export default function PageList() {
     };
 
     const [search, setSearch] = useState('');
+    const [row, setRow] = useState('');
 
     const filteredProducts = e => {
         setSearch(e.target.value);
@@ -91,17 +109,10 @@ export default function PageList() {
                 </button>
                 <p><strong>Your data is:</strong></p>
                 <div>
-                    {
-                        data.map((experience, i) => {
-                            return (
-                                <div key={experience.title}>
-                                    <div>
-                                        <p>{experience.title}</p>
-                                    </div>
-                                </div>
-                            )
-                        })
-                    }
+                     {<p>{row.title}</p>}
+                     {<p>{row.url}</p>}
+                     {<p>{row.created_at}</p>}
+                     {<p>{row.author}</p>}
                 </div>
             </TableContainer>
         </>
@@ -109,8 +120,33 @@ export default function PageList() {
 
     return (
         <div className="container">
-            <label>Search:</label>
+            <label className={classes.labelsearch}>Search:</label>
             <input type='text' className={classes.search} placeholder='Search...' onChange={filteredProducts} />
+
+            <label className={classes.labeltitle}>Search by Title:</label>
+            <select name='selectTitle' className={classes.titledropdown} onChange={filteredProducts}>
+                <option value=''>Select Title</option>
+                {data.map(option => {
+                    return (
+                        <option key={option.title} value={option.title}>
+                            {option.title}
+                        </option>
+                    )
+                })}
+            </select>
+
+            <label>Search by Created_At:</label>
+            <select name='selectOption' className={classes.Created_atdropdown} onChange={filteredProducts}>
+                <option value=''>Select Created_At </option>
+                {data.map(option => {
+                    return (
+                        <option key={option.created_at} value={option.created_at}>
+                            {option.created_at}
+                        </option>
+                    )
+                })}
+            </select>
+
             <TableContainer className={classes.paper} component={Paper} >
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead >
@@ -127,26 +163,29 @@ export default function PageList() {
                             if (search === '') {
                                 return val;
                             }
-                            else if (val.title.toLowerCase().includes(search.toLowerCase())) {
+                            else if (val.title?.toLowerCase().includes(search.toLowerCase())) {
                                 return val;
                             }
-                            else if (val.author.toLowerCase().includes(search.toLowerCase())) {
+                            else if (val.author?.toLowerCase().includes(search.toLowerCase())) {
                                 return val;
                             }
-                            else if (val.url.toLowerCase().includes(search.toLowerCase())) {
+                            else if (val.url?.toLowerCase().includes(search.toLowerCase())) {
+                                return val;
+                            }
+                            else if (val.created_at?.toLowerCase().includes(search.toLowerCase())) {
                                 return val;
                             }
                         })
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row, index) => (
-                                <TableRow key={row.title} className={classes.root}>
+                                <TableRow key={row.title} className={classes.root} onClick={()=>{setRow(row);handleOpen();}}>
                                     <TableCell component="th" scope="row">
                                         {index + 1}
                                     </TableCell>
-                                    <TableCell onClick={handleOpen} >{row.title}</TableCell>
-                                    <TableCell onClick={handleOpen}>{row.url}</TableCell>
-                                    <TableCell onClick={handleOpen} >{row.created_at}</TableCell>
-                                    <TableCell onClick={handleOpen}>{row.author}</TableCell>
+                                    <TableCell  >{row.title}</TableCell>
+                                    <TableCell >{row.url}</TableCell>
+                                    <TableCell  >{row.created_at}</TableCell>
+                                    <TableCell >{row.author}</TableCell>
                                 </TableRow>
                             ))}
                     </TableBody>
