@@ -109,10 +109,9 @@ export default function PageList() {
                 </button>
                 <p><strong>Your data is:</strong></p>
                 <div>
-                     {<p>{row.title}</p>}
-                     {<p>{row.url}</p>}
-                     {<p>{row.created_at}</p>}
-                     {<p>{row.author}</p>}
+                    {JSON.stringify({
+                        "current title is ": row.title, "current url is ": row.url, "current created_at is ": row.created_at, "current author is ": row.author
+                    })}
                 </div>
             </TableContainer>
         </>
@@ -175,10 +174,13 @@ export default function PageList() {
                             else if (val.created_at?.toLowerCase().includes(search.toLowerCase())) {
                                 return val;
                             }
+                            else {
+                                return false;
+                            }
                         })
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row, index) => (
-                                <TableRow key={row.title} className={classes.root} onClick={()=>{setRow(row);handleOpen();}}>
+                                <TableRow key={row.title} className={classes.root} onClick={() => { setRow(row); handleOpen(); }}>
                                     <TableCell component="th" scope="row">
                                         {index + 1}
                                     </TableCell>
