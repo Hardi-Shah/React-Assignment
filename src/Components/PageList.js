@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { getAPIService } from "../Services/APIService";
+import { apiurl } from "../Services/APIService";
 import { makeStyles } from "@material-ui/core/styles";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from "@material-ui/core";
 import { Paper, Modal } from '@material-ui/core';
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
     table: {
@@ -57,18 +58,27 @@ const useStyles = makeStyles((theme) => ({
 export default function PageList() {
     const classes = useStyles();
     const [data, setData] = useState([]);
+    const [pageno, setPageno] = useState(0);
 
     useEffect(() => {
         loadData();
+    },[]);
+
+    useEffect(() => {
         const interval = setInterval(() => {
-            loadData();
+            //setNewdata([...newdata, ...data])
+            //loadData();
         }, 10000)
         return () => clearInterval(interval)
     }, []);
 
-    const loadData = async () => {
-        const result = await getAPIService()
-        setData(result.data.hits);
+    const loadData = () => {
+        axios.get(apiurl+pageno)
+            .then(result => {
+                setData((data)=>[...data,...result.data.hits])
+                //setPosts((prevPosts) => [...prevPosts, ...response.data.hits]);
+            })
+         setPageno(pageno+1);
     };
 
     const [page, setPage] = React.useState(0);
@@ -179,15 +189,15 @@ export default function PageList() {
                             }
                         })
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row, index) => (
-                                <TableRow key={row.title} className={classes.root} onClick={() => { setRow(row); handleOpen(); }}>
+                            .map((item, index) => (
+                                <TableRow key={item.title} className={classes.root} onClick={() => { setRow(item); handleOpen(); }}>
                                     <TableCell component="th" scope="row">
                                         {index + 1}
                                     </TableCell>
-                                    <TableCell  >{row.title}</TableCell>
-                                    <TableCell >{row.url}</TableCell>
-                                    <TableCell  >{row.created_at}</TableCell>
-                                    <TableCell >{row.author}</TableCell>
+                                    <TableCell>{item.title}</TableCell>
+                                    <TableCell>{item.url}</TableCell>
+                                    <TableCell>{item.created_at}</TableCell>
+                                    <TableCell>{item.author}</TableCell>
                                 </TableRow>
                             ))}
                     </TableBody>
