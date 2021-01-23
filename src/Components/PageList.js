@@ -66,17 +66,15 @@ export default function PageList() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            //setNewdata([...newdata, ...data])
-            //loadData();
+            loadData();
         }, 10000)
         return () => clearInterval(interval)
-    }, []);
+    }, [data]);
 
     const loadData = () => {
         axios.get(apiurl+pageno)
             .then(result => {
-                setData((data)=>[...data,...result.data.hits])
-                //setPosts((prevPosts) => [...prevPosts, ...response.data.hits]);
+                setData([...data,...result.data.hits])
             })
          setPageno(pageno+1);
     };
@@ -109,7 +107,7 @@ export default function PageList() {
         setSearch(e.target.value);
     };
 
-    const body = (
+    const ModalPopUp = (
         <>
             <TableContainer className={classes.modalpaper} component={Paper} >
                 <button style={{ marginLeft: '485px' }}
@@ -135,9 +133,9 @@ export default function PageList() {
             <label className={classes.labeltitle}>Search by Title:</label>
             <select name='selectTitle' className={classes.titledropdown} onChange={filteredProducts}>
                 <option value=''>Select Title</option>
-                {data.map(option => {
+                {data.map((option,index) => {
                     return (
-                        <option key={option.title} value={option.title}>
+                        <option key={index} value={option.title}>
                             {option.title}
                         </option>
                     )
@@ -147,9 +145,9 @@ export default function PageList() {
             <label>Search by Created_At:</label>
             <select name='selectOption' className={classes.Created_atdropdown} onChange={filteredProducts}>
                 <option value=''>Select Created_At </option>
-                {data.map(option => {
+                {data.map((option,index) => {
                     return (
-                        <option key={option.created_at} value={option.created_at}>
+                        <option key={index} value={option.created_at}>
                             {option.created_at}
                         </option>
                     )
@@ -190,7 +188,7 @@ export default function PageList() {
                         })
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((item, index) => (
-                                <TableRow key={item.title} className={classes.root} onClick={() => { setRow(item); handleOpen(); }}>
+                                <TableRow key={index} className={classes.root} onClick={() => { setRow(item); handleOpen(); }}>
                                     <TableCell component="th" scope="row">
                                         {index + 1}
                                     </TableCell>
@@ -218,7 +216,7 @@ export default function PageList() {
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description"
             >
-                {body}
+                {ModalPopUp}
             </Modal>
         </div>
     );
