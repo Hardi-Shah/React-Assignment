@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useInView } from 'react-intersection-observer';
 import { apiurl } from "../Services/APIService";
 import { makeStyles } from "@material-ui/core/styles";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from "@material-ui/core";
@@ -52,43 +53,57 @@ const useStyles = makeStyles((theme) => ({
     },
     Created_atdropdown: {
         width: 230, marginTop: '0px', marginRight: -340, borderRadius: 4
+    },
+    dataEnd:{
+        opacity:0
     }
 }));
 
 export default function PageList() {
     const classes = useStyles();
     const [data, setData] = useState([]);
-    const [pageno, setPageno] = useState(0);
+    const currentPage = useRef();
+    const [nbpages, setNbpages] = useState(true);
+    const [lastElementInsideTableForCheckingVisibilityRef,
+        isLastElementInsideTableVisible] = useInView();
 
     useEffect(() => {
         loadData();
-    },[]);
+    }, []);
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        if (isLastElementInsideTableVisible && data && data.length > 0 && nbpages) {
             loadData();
-        }, 10000)
+        }
+    }, [isLastElementInsideTableVisible]);
+
+    useEffect(() => {
+        let interval;
+        if (nbpages) {
+            interval = setInterval(() => {
+                loadData();
+            }, 10000)
+        }
         return () => clearInterval(interval)
     }, [data]);
 
     const loadData = () => {
-        axios.get(apiurl+pageno)
+        const pageno = currentPage.current ? currentPage.current : 0;
+        currentPage.current = pageno + 1;
+        axios.get(apiurl + pageno)
             .then(result => {
-                setData([...data,...result.data.hits])
+                setData([...data, ...result.data.hits])
+                if (pageno >= result.data.nbPages) {
+                    setNbpages(false);
+                }
             })
-         setPageno(pageno+1);
     };
 
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = event => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+    const dataEnd = useCallback(
+        (node) => {
+            lastElementInsideTableForCheckingVisibilityRef(node);
+        }, [lastElementInsideTableForCheckingVisibilityRef]
+    );
 
     const [open, setOpen] = React.useState(false);
 
@@ -110,7 +125,7 @@ export default function PageList() {
     const ModalPopUp = (
         <>
             <TableContainer className={classes.modalpaper} component={Paper} >
-                <button style={{ marginLeft: '485px' }}
+                <button style={{marginLeft:'485px'}}
                     className="btn fa fa-times modalclose"
                     onClick={handleClose}
                 >
@@ -133,7 +148,7 @@ export default function PageList() {
             <label className={classes.labeltitle}>Search by Title:</label>
             <select name='selectTitle' className={classes.titledropdown} onChange={filteredProducts}>
                 <option value=''>Select Title</option>
-                {data.map((option,index) => {
+                {data.map((option, index) => {
                     return (
                         <option key={index} value={option.title}>
                             {option.title}
@@ -145,7 +160,7 @@ export default function PageList() {
             <label>Search by Created_At:</label>
             <select name='selectOption' className={classes.Created_atdropdown} onChange={filteredProducts}>
                 <option value=''>Select Created_At </option>
-                {data.map((option,index) => {
+                {data.map((option, index) => {
                     return (
                         <option key={index} value={option.created_at}>
                             {option.created_at}
@@ -186,7 +201,6 @@ export default function PageList() {
                                 return false;
                             }
                         })
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((item, index) => (
                                 <TableRow key={index} className={classes.root} onClick={() => { setRow(item); handleOpen(); }}>
                                     <TableCell component="th" scope="row">
@@ -200,16 +214,8 @@ export default function PageList() {
                             ))}
                     </TableBody>
                 </Table>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={data.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
             </TableContainer>
+            <div ref={dataEnd} className={classes.dataEnd}>End of Result</div>
             <Modal
                 open={open}
                 onClose={handleClose}
