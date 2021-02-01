@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@chakra-ui/react'
+import {Button} from '@chakra-ui/react'
 import { action, actions } from '@storybook/addon-actions'
 import { text, boolean } from '@storybook/addon-knobs'
 
