@@ -7,11 +7,12 @@ import {withKnobs} from '@storybook/addon-knobs'
 import {INITIAL_VIEWPORTS} from '@storybook/addon-viewport'
 import {withA11y} from '@storybook/addon-a11y'
 
-// addDecorator(story => (
-// <ThemeProvider theme={theme}>
-//   <Center>{story()}</ Center>
-//   <CSSReset/>
-// </ThemeProvider>))
+addDecorator((story) => (
+<ThemeProvider theme={theme}>
+  <CSSReset/>
+  <Center>{story()}</ Center>
+</ThemeProvider>
+))
 
 addDecorator((storyFn,context)=>withConsole()(storyFn)(context))
 addDecorator(withKnobs)

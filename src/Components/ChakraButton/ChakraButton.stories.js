@@ -15,7 +15,7 @@ export default {
 
 //  export const Success = () => <Button onClick={action('click handler')} colorScheme='green'>Success</Button>
 //  export const Danger = () => <Button {...actions('onClick', 'onMouseOver')} colorScheme='red'>Danger</Button>
-export const Log = () => <Button onClick={() => console.log('button clicked', process.env.STORYBOOK_THEME)} colorScheme='blue'>Log</Button>
+export const Log = () => <Button onClick={() => console.log('button clicked',process.env.STORYBOOK_THEME)} colorScheme='blue'>Log</Button>
 export const knobs = () => <Button colorScheme='purple' disabled={boolean('Disabled', false)}>
     {text('label', 'button label')}
 </Button>
