@@ -13,6 +13,19 @@ export const Secondary = () => <Button variant='secondary'>Secondary</Button>
 export const Success = () => <Button variant='success'>Success</Button>
 export const Danger = () => <Button variant='danger'>Danger</Button>
 
+// import React from 'react'
+// import Tag from './Button'
+// export default {
+//      title: 'Tag title',
+//      component: Tag
+// }
+// export const Basic = () => (
+//      <Tag/>
+// )
+// export const Second = () => (
+//      <Tag title="My second tag"/>
+// )
+
 // const Template = (args) => <Button {...args}/>
 
 // export const PrimaryA=Template.bind({});
